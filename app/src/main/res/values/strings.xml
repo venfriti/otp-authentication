@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">OTPAuthentication</string>
+    <string name="generate_otp">Generate OTP</string>
+    <string name="to_regenerate_wait_60_seconds">To regenerate, wait %1$s seconds</string>
+    <string name="successfully_signed_in">Hi %1$s, you are successfully signed in</string>
+</resources>
