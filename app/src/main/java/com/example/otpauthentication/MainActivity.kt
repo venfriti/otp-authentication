@@ -27,14 +27,14 @@ class MainActivity : AppCompatActivity() {
             otpText = binding.otpText
             otpText.text = getTime()
             binding.regenerateText.visibility = VISIBLE
+            binding.regenerate.text = getString(R.string.regenerate_otp)
             binding.regenerate.isEnabled = false
             startCountdown()
         }
     }
 
     private fun startCountdown() {
-        // Create a CountDownTimer for 60 seconds (60,000 milliseconds)
-        val countDownTimer = object : CountDownTimer(60000, 1000) {
+        val countDownTimer = object : CountDownTimer(30000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val secondsRemaining = (millisUntilFinished / 1000).toInt().toString()
                 val countdown = getString(R.string.to_regenerate_wait_60_seconds, secondsRemaining)
@@ -52,41 +52,36 @@ class MainActivity : AppCompatActivity() {
 
     private fun getTime(): String {
         val unixTime = System.currentTimeMillis()
-        val lastSixDigits = unixTime % 1000000
-        val subtract = subtractAndLoopBack(lastSixDigits.toString())
+        val lastSixDigits = unixTime % 100000000
+        val stringValue = lastSixDigits.toString()
+        val removeTwo = stringValue.substring(0, stringValue.length - 2)
+        val subtract = ethicalSubtraction(removeTwo)
         val rearrangedString = rearrangeDigits(subtract)
         return mappedDigits(rearrangedString)
     }
 
-    private fun subtractAndLoopBack(number: String): String {
-        val numbered: String = if (number.length != 6){
-            "0$number"
-        } else {
-            number
+    private fun ethicalSubtraction(number: String): String{
+        var sixDigits = number
+        while(sixDigits.length != 6){
+            sixDigits = "0$sixDigits"
         }
-        val numStr = numbered.toCharArray()
-        val lastDigit = Character.getNumericValue(numStr[numStr.size - 1])
-
-        val result = numStr.map { digitChar ->
-            val digit = Character.getNumericValue(digitChar)
-            if (digit < lastDigit) {
-                9 - (lastDigit - digit)
+        val lastDigit = sixDigits[5].digitToInt()
+        var subtracted = ""
+        for (i in 0..4){
+            val currentNum = sixDigits[i].digitToInt()
+            subtracted += if (lastDigit > currentNum){
+                val subtraction = 10 + currentNum - lastDigit
+                subtraction
             } else {
-                digit - lastDigit
+                val subtraction = currentNum - lastDigit
+                subtraction
             }
-        }.joinToString("").toInt()
-        val resultString = (result + lastDigit).toString()
-        return if (resultString.length == 6){
-            resultString
-        } else {
-            "0$resultString"
         }
+        subtracted += lastDigit
+        return subtracted
     }
 
     private fun rearrangeDigits(number: String): String {
-        if (number.length != 6) {
-            throw IllegalArgumentException("Input must be a six-digit number")
-        }
         var numbered = ""
         numbered += number[4]
         numbered += number[0]
